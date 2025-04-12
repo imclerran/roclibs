@@ -1,7 +1,7 @@
 # The Ghostly Gala
 
 \\BEGIN STORY
-Welcome to the (a/an) [1. adjective] edition of the annual Ghostly Gala, the (a/an) [2. adjective] event where ghoulish [3. plural noun] gather to celebrate their (a/an) [4. adjective] lifestyle. This year, the venue is a haunted [5. generic place], where (a/an) [6. noun] of long-lost spirits roam freely.
+Welcome to the [1. adjective] edition of the annual Ghostly Gala, the [2. adjective] event where ghoulish [3. plural noun] gather to celebrate their (a/an) [4. adjective] lifestyle. This year, the venue is a haunted [5. generic place], where (a/an) [6. noun] of long-lost spirits roam freely.
 
 This year, our special guest is (a/an) [7. occupation] known for their incredible talent at [8. verb (ending in -ing)], who will be signing [9. plural noun] for any fan in attendance. Guests are encouraged to wear their finest [10. plural article of clothing], as a (a/an) [11. adjective] costume contest will take place at [12. number] PM sharp.
 
