@@ -3,7 +3,7 @@
 \\BEGIN STORY
 It all started when I woke up to find (a/an) [1. adjective] unicorn standing in my [2. location (room)], munching on my [3. plural noun]. At first, I thought I was dreaming, but then it sneezed (a/an) [4. type of liquid] all over my [5. part of the body].
 
-"Well, that's [6. adjective]," I muttered, grabbing (a/an) [7. noun] to clean up the mess. The unicorn looked at me with (a/an) [8. adjective] glare and demanded (a/an) [9. plural noun].
+"Well, that's [6. adjective]," I muttered, grabbing (a/an) [7. noun] to clean up the mess. The unicorn looked at me with (a/an) [8. adjective] glare and demanded [9. plural noun].
 
 I tried to appease it with (a/an) [10. silly word] dance, but that only made it [11. verb] louder. Suddenly, my neighbor, a retired [12. occupation], burst in wielding (a/an) [13. noun] and shouting "[14. Exclamation]!"
 
