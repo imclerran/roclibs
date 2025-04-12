@@ -49,23 +49,10 @@ to_markdown = |roclib|
     "${title}${text}"
 
 to_html = |roclib|
-    story_text =
-        roclib.story
-        |> List.walk(
-            "",
-            |acc, part|
-                when part is
-                    Text(text) -> Str.concat(acc, text)
-                    BackReference({ answer }) ->
-                        strong_answer = "<strong>${answer}</strong>"
-                        Str.concat(acc, strong_answer)
-
-                    Blank({ answer }) ->
-                        strong_answer = "<strong>${answer}</strong>"
-                        Str.concat(acc, strong_answer),
-        )
     paragraphs =
-        story_text
+        roclib.story
+        |> List.map(part_to_html)
+        |> Str.join_with("")
         |> Str.split_on("\n")
         |> List.drop_if(|s| Str.is_empty(s))
         |> List.map(|p| "<p>${p}</p>")
@@ -74,4 +61,12 @@ to_html = |roclib|
     style = "<style>body { background-color: #1e1e2e; margin: 2rem auto; max-width: 1000px; padding: 0 2rem; font-family: Calibri, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 160%; } h1 { color: #cba6f7; font-size: 160%; } p { color: #cdd6f4; }</style>"
 
     "<html><head>${style}</head><body>${title}${paragraphs}</body></html>"
+
+part_to_html = |part|
+    when part is
+        Blank({ answer }) ->
+            "<strong>${answer}</strong>"
+        BackReference({ answer }) ->
+            "<strong>${answer}</strong>"
+        Text(text) -> text
 
