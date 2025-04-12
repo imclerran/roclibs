@@ -5,7 +5,7 @@ It was a normal Tuesday when (a/an) [1. adjective] spaceship landed right in the
 
 "(A/An) [5. adjective] greetings, Earthling!" it said, its [6. verb (ending in -ing)] voice echoing through the air. It seemed friendly enough, but then it boldly demanded (a/an) [7. type of food].
 
-Confused, I offered (a/an) [8. type of food (plural)], which it gobbled up faster than (a/an) [9. animal] chasing a [10. object]. Then, without warning, it started to [11. verb] my backyard.
+Confused, I offered [8. type of food (plural)], which it gobbled up faster than (a/an) [9. animal] chasing a [10. object]. Then, without warning, it started to [11. verb] my backyard.
 
 "Hey, [12. name]!" I shouted to my neighbor, who was peeking over the fence with (a/an) [13. silly word] expression on her face. "Bring more [14. type of food (plural)]!"
 

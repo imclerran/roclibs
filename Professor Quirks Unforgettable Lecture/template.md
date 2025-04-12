@@ -7,7 +7,7 @@ In the heart of [1. Geographical location], Professor Quirk taught his unusual c
 
 With (a/an) [13. adjective] flair, the professor launched the [same as 5] into the air and caught it on his [14. part of the body]. The students gasped and sporadically clutched their [15. plural noun].
 
-Professor Quirk then presented the class with a challenge: "Who can combine (a/an) [16. silly word] with (a/an) [17. noun] to create (a/an) [18. adjective] routine?" To everyone's surprise, the quiet [19. name (feminine)] in the back jumped up, juggling (a/an) [20. plural noun] expertly.
+Professor Quirk then presented the class with a challenge: "Who can combine (a/an) [16. silly word] with (a/an) [17. noun] to create (a/an) [18. adjective] routine?" To everyone's surprise, the quiet [19. name (feminine)] in the back jumped up, juggling [20. plural noun] expertly.
 
 The room erupted in (a/an) [21. adjective] applause, and Professor Quirk declared, "[22. Exclamation]! We've found our new star!" 
 

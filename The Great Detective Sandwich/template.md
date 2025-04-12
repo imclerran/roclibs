@@ -5,7 +5,7 @@ On a gloomy Wednesday afternoon, the renowned detective, [1. Name], was called t
 
 The shop's owner, Mrs. [5. Last name], was in tears. "It was the most [6. adjective] [same as 2] in town!" she exclaimed, clutching her (a/an) [7. noun] to her chest.
 
-Detective [same as 1] nodded thoughtfully, inspecting the messy scene. Breadcrumbs trailed like (a/an) [8. plural noun] leading away from the counter. "Aha!" he declared. "This could only be the work of the infamous [9. silly word] Gang!"
+Detective [same as 1] nodded thoughtfully, inspecting the messy scene. Breadcrumbs trailed like [8. plural noun] leading away from the counter. "Aha!" he declared. "This could only be the work of the infamous [9. silly word] Gang!"
 
 Armed with his magnifying [10. noun], Detective [same as 1] followed the trail through the bustling streets. Along the way, they encountered (a/an) [11. adjective] street vendor who offered them clues in exchange for (a/an) [12. article of clothing].
 
