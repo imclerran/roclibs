@@ -62,3 +62,28 @@ to_html = |roclib|
     style = "<style>body { background-color: #1e1e2e; margin: 2rem auto; max-width: 1000px; padding: 0 2rem; font-family: Calibri, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 170%; } h1 { color: #cba6f7; font-size: 170%; } p { color: #cdd6f4; }</style>"
 
     "<html><head>${style}</head><body>${title}${paragraphs}</body></html>"
+
+to_html2 = |roclib|
+    story_text = 
+        roclib.story 
+        |> List.walk(
+				    "",
+		        |acc, part|
+		            when part is
+		                BackReference({ answer }) -> Str.concat(acc, answer)
+		                Text(text) -> Str.concat(acc, text)
+										Blank({ answer }) -> 
+												strong_answer = "<strong>${answer}</strong>"
+												Str.concat(acc, strong_answer)
+		    )
+		paragraphs =
+        story_text
+        |> Str.split_on("\n") 
+        |> List.drop_if(|s| Str.is_empty(s))
+        |> List.map(|p| "<p>${p}</p>")
+        |> Str.join_with("")
+    title = "<h1>${roclib.title}</h1>"
+    style = "<style>body { background-color: #1e1e2e; margin: 2rem auto; max-width: 1000px; padding: 0 2rem; font-family: Calibri, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 170%; } h1 { color: #cba6f7; font-size: 170%; } p { color: #cdd6f4; }</style>"
+
+    "<html><head>${style}</head><body>${title}${paragraphs}</body></html>"
+
