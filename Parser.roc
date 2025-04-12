@@ -20,8 +20,8 @@ blank = open_bracket |> rhs(P.integer) |> lhs(dot) |> lhs(P.whitespace) |> both(
 
 expect blank("[20. Noun (plural)]") |> P.finalize == Ok(Blank({ index: 20, part_of_speech: "noun (plural)", answer: "" }))
 
-back_reference = open_bracket |> rhs("same as " |> P.string) |> rhs(P.maybe(pound)) |> rhs(P.integer) |> lhs(close_bracket) |> P.map(|i| Ok(BackReference({index: i, answer: ""})))
-expect back_reference("[same as 20]") |> P.finalize == Ok(BackReference({index: 20, answer: ""}))
+back_reference = open_bracket |> rhs("same as " |> P.string) |> rhs(P.maybe(pound)) |> rhs(P.integer) |> lhs(close_bracket) |> P.map(|i| Ok(BackReference({ index: i, answer: "" })))
+expect back_reference("[same as 20]") |> P.finalize == Ok(BackReference({ index: 20, answer: "" }))
 
 begin_story = backslash |> rhs(backslash) |> rhs("BEGIN STORY" |> P.string) |> rhs(P.whitespace) |> P.map(|_| Ok(BeginStory))
 end_story = backslash |> rhs(backslash) |> rhs("END STORY" |> P.string) |> rhs(P.maybe(P.whitespace)) |> P.map(|_| Ok(EndStory))
@@ -30,29 +30,31 @@ story = begin_story |> rhs(P.one_or_more(P.one_of([blank, back_reference, story_
 
 expect story("\\\\BEGIN STORY\nNothing to see here.\\\\END STORY") |> P.finalize == Ok([Text("Nothing to see here.")])
 expect story("\\\\BEGIN STORY\n[20. Noun (plural)]\\\\END STORY") |> P.finalize == Ok([Blank({ index: 20, part_of_speech: "noun (plural)", answer: "" })])
-expect story("\\\\BEGIN STORY\n[20. Noun (plural)][same as 20]\\\\END STORY") |> P.finalize == Ok([Blank({ index: 20, part_of_speech: "noun (plural)", answer: "" }), BackReference({index: 20, answer: ""})])
-expect story("\\\\BEGIN STORY\nOnce there was a [20. Noun], and what a [same as 20] it was. Good talk.\\\\END STORY") |> P.finalize == Ok([Text("Once there was a "), Blank({ index: 20, part_of_speech: "noun", answer: "" }), Text(", and what a "), BackReference({index: 20, answer: ""}), Text(" it was. Good talk.")])
+expect story("\\\\BEGIN STORY\n[20. Noun (plural)][same as 20]\\\\END STORY") |> P.finalize == Ok([Blank({ index: 20, part_of_speech: "noun (plural)", answer: "" }), BackReference({ index: 20, answer: "" })])
+expect story("\\\\BEGIN STORY\nOnce there was a [20. Noun], and what a [same as 20] it was. Good talk.\\\\END STORY") |> P.finalize == Ok([Text("Once there was a "), Blank({ index: 20, part_of_speech: "noun", answer: "" }), Text(", and what a "), BackReference({ index: 20, answer: "" }), Text(" it was. Good talk.")])
 
 parse = |str|
-    pattern = title |> lhs(P.zero_or_more(story_char)) |> both(story) 
-    parser = pattern |> P.map(
-        |(t, s)| 
-            blanks = 
-                List.walk(
-                    s, 
-                    0, 
-                    |n, p| 
-                        when p is
-                            Blank({ index }) if index > n -> index
-                            _ -> n
-                )
-            Ok({ title: t, story: s, blanks })
-    )
+    pattern = title |> lhs(P.zero_or_more(story_char)) |> both(story)
+    parser =
+        pattern
+        |> P.map(
+            |(t, s)|
+                blanks =
+                    List.walk(
+                        s,
+                        0,
+                        |n, p|
+                            when p is
+                                Blank({ index }) if index > n -> index
+                                _ -> n,
+                    )
+                Ok({ title: t, story: s, blanks }),
+        )
     parser(str) |> P.finalize_lazy
 
-expect 
+expect
     import "./The Mysterious Space Station/template.md" as text : Str
-    expected = 
+    expected =
         Ok(
             {
                 title: "The Mysterious Space Station",
@@ -84,7 +86,7 @@ expect
                     Text(" floating in zero gravity. Suddenly, I slipped on (a/an) "),
                     Blank({ index: 13, part_of_speech: "noun", answer: "" }),
                     Text(" and crashed into a panel, accidentally activating the "),
-                    BackReference({index: 3, answer: ""}),
+                    BackReference({ index: 3, answer: "" }),
                     Text("'s engines. The entire station started (a/an) "),
                     Blank({ index: 14, part_of_speech: "verb (ending in -ing)", answer: "" }),
                     Text(" through space!\n\nWe zoomed past "),
@@ -92,9 +94,9 @@ expect
                     Text(" and a planet shaped like (a/an) "),
                     Blank({ index: 16, part_of_speech: "silly word", answer: "" }),
                     Text(". The "),
-                    BackReference({index: 10, answer: ""}),
+                    BackReference({ index: 10, answer: "" }),
                     Text(" shouted \""),
-                    BackReference({index: 9, answer: ""}),
+                    BackReference({ index: 9, answer: "" }),
                     Text("!\" again and pressed a button with (a/an) "),
                     Blank({ index: 17, part_of_speech: "part of the body", answer: "" }),
                     Text(". We came to a stop near an alien market where they sold (a/an) "),
@@ -104,11 +106,11 @@ expect
                     Text(".\n\nAfter a quick "),
                     Blank({ index: 20, part_of_speech: "noun", answer: "" }),
                     Text(", the ship brought me home. I woke up in my bed, wondering if it had all been a dream... until I saw the "),
-                    BackReference({index: 18, answer: ""}),
-                    Text(" on my desk.\n")
+                    BackReference({ index: 18, answer: "" }),
+                    Text(" on my desk.\n"),
                 ],
-                blanks: 20
-            }
+                blanks: 20,
+            },
         )
-    result = parse(text) 
+    result = parse(text)
     result == expected

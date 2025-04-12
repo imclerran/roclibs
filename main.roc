@@ -28,8 +28,7 @@ import dt.Now {
     now_to_nanos: Utc.to_nanos_since_epoch,
 }
 
-
-main! = |_args| 
+main! = |_args|
     main_loop!({})
 
 main_loop! = |{}|
@@ -58,21 +57,21 @@ get_madlib_choices! = |{}|
                 index = List.len(acc) + 1
                 List.append(acc, (index, title, file_path)) |> Ok
             else
-                Ok(acc)   
+                Ok(acc),
     )
 
 main_menu! = |{}|
     menu_options = ["1) Generate a new story", "2) Play an existing story", "3) Exit"]
     List.for_each_try!(
         menu_options,
-        |option| option |> color({ fg: Standard Magenta }) |> Stdout.line!()
+        |option| option |> color({ fg: Standard Magenta }) |> Stdout.line!(),
     )?
-    "\nSelect an option by number: "|> color({ fg: Standard Cyan }) |> Stdout.line!?
+    "\nSelect an option by number: " |> color({ fg: Standard Cyan }) |> Stdout.line!?
     choice = Stdin.line!({})? |> Str.to_u64
     when choice is
         Ok(1) ->
             play_new_story!({})
-            
+
         Ok(2) ->
             play_existing_story!({})
 
@@ -85,7 +84,7 @@ main_menu! = |{}|
             main_menu!({})
 
 play_new_story! = |{}|
-    "\nPlease enter a theme for your story (or leave blank for a surprise): " 
+    "\nPlease enter a theme for your story (or leave blank for a surprise): "
     |> color({ fg: Standard Cyan })
     |> Stdout.line!?
     theme = Stdin.line!({})? |> |s| if Str.is_empty(s) then "Surprise me!" else s |> Str.trim
@@ -100,7 +99,7 @@ play_new_story! = |{}|
     play_roclib!(roclib, template_path)
 
 play_existing_story! = |{}|
-    madlib_choices = get_madlib_choices!({}) ? |_| GetMadLibChoicesError 
+    madlib_choices = get_madlib_choices!({}) ? |_| GetMadLibChoicesError
     madlib_choice = my_madlibs_menu!(madlib_choices)?
     template_path = madlib_choice.2
     roclib = load_story!(template_path) ? |_| LoadStoryError
@@ -121,17 +120,17 @@ open_story_html! = |file_path|
         LINUX -> Cmd.exec!("xdg-open", [file_path])
         MACOS -> Cmd.exec!("open", [file_path])
         _ -> Err(UnsupportedPlatform)
-         
+
 are_you_ready! = |{}|
-    "\nARE YOU READY?!?!" 
+    "\nARE YOU READY?!?!"
     |> color({ fg: Standard Red })
     |> Stdout.line!?
-    (if Str.is_empty(Stdin.line!({})?) then "Opening your story..." else "\nOpening your story...") 
-    |> color({ fg: Standard Magenta }) 
-    |> Stdout.line!    
+    (if Str.is_empty(Stdin.line!({})?) then "Opening your story..." else "\nOpening your story...")
+    |> color({ fg: Standard Magenta })
+    |> Stdout.line!
 
 continue! = |{}|
-    "\nPress enter to return to the main menu..." 
+    "\nPress enter to return to the main menu..."
     |> color({ fg: Standard Cyan })
     |> Stdout.line!?
     _ = Stdin.line!({})
@@ -142,8 +141,8 @@ my_madlibs_menu! = |choices|
     "\nSelect a story by number: " |> color({ fg: Standard Cyan }) |> Stdout.line!?
     when get_madlibs_menu_choice!(choices) is
         Err(InvalidChoice(index)) ->
-            "\nInvalid choice: ${index |> Num.to_str}. Please try again.\n" 
-            |> color({ fg: Standard Yellow }) 
+            "\nInvalid choice: ${index |> Num.to_str}. Please try again.\n"
+            |> color({ fg: Standard Yellow })
             |> Stdout.line!?
             my_madlibs_menu!(choices)
 
@@ -154,9 +153,9 @@ print_madlibs_menu! = |choices|
     List.for_each_try!(
         choices,
         |(index, title, _file_path)|
-            "${index |> Num.to_str}) ${title}" 
+            "${index |> Num.to_str}) ${title}"
             |> color({ fg: Standard Magenta })
-            |> Stdout.line!
+            |> Stdout.line!,
     )
 
 get_madlibs_menu_choice! = |choices|
@@ -166,11 +165,11 @@ get_madlibs_menu_choice! = |choices|
 load_story! : Path.Path => Result RocLib _
 load_story! = |path|
     file_path = Path.display(path)
-    text = File.read_utf8!(file_path) |> Result.map_err(|_| FailedToReadFile((file_path)))?
+    text = File.read_utf8!(file_path) |> Result.map_err(|_| FailedToReadFile(file_path))?
     RocLib.parse_template(text)
-    
+
 get_answers! = |roclib|
-    story = 
+    story =
         roclib.story
         |> List.walk_try!(
             [],
@@ -179,22 +178,24 @@ get_answers! = |roclib|
                     Blank({ index, part_of_speech }) ->
                         answer = get_answer!(part_of_speech, index, roclib.blanks)?
                         List.append(acc, Blank({ index, part_of_speech, answer })) |> Ok
-                    BackReference({index}) ->
+
+                    BackReference({ index }) ->
                         answer = RocLib.lookup_reference(index, acc) |> Result.with_default("# reference error#")
                         List.append(acc, BackReference({ index, answer })) |> Ok
+
                     Text(text) ->
-                        List.append(acc, Text(text)) |> Ok              
+                        List.append(acc, Text(text)) |> Ok,
         )?
     Ok { roclib & story }
 
 get_answer! = |part_of_speech, index, total|
     progress = index |> Num.to_str |> Str.concat("/") |> Str.concat(total |> Num.to_str)
-    "\n(${progress}) Please enter a ${part_of_speech}: " 
-    |> color({ fg: Standard Cyan }) 
+    "\n(${progress}) Please enter a ${part_of_speech}: "
+    |> color({ fg: Standard Cyan })
     |> Stdout.line!?
     answer = Stdin.line!({})? |> Str.trim
     if Str.is_empty(answer) then
-        "Answer cannot be empty.\nPlease enter a ${part_of_speech}: " 
+        "Answer cannot be empty.\nPlease enter a ${part_of_speech}: "
         |> color({ fg: Standard Yellow })
         |> Stdout.line!?
         get_answer!(part_of_speech, index, total)
@@ -212,8 +213,8 @@ generate_madlib! = |theme|
     model = "openai/gpt-4o"
     api = OpenRouter
     message_text = "${prompt}\n\nUSER SELECTED THEME:\n${theme}"
-    client = 
-        Client.new({api, api_key, model})
+    client =
+        Client.new({ api, api_key, model })
         |> Chat.add_user_message(message_text, {})
     generate_madlib_help!(theme, 3, client)
 
@@ -221,7 +222,7 @@ generate_madlib_help! = |theme, tries, client|
     req = Chat.build_http_request(client, {})
     resp = Http.send!(req)?
     when resp.status is
-        200 -> 
+        200 ->
             message = Chat.decode_top_message_choice(resp.body)?
             template = message.content |> Str.drop_prefix("```md") |> Str.drop_prefix("```") |> Str.drop_suffix("```") |> Str.trim
             when RocLib.parse_template(template) is
@@ -233,16 +234,18 @@ generate_madlib_help! = |theme, tries, client|
                     template_path = Str.concat(dirpath, "/template.md") |> Path.from_str
                     Path.write_utf8!(template, template_path)?
                     Ok((roclib, template_path))
+
                 Err(_) if tries > 0 ->
                     retry_message = "There was a problem parsing your story, please try again and pay careful attention"
-                    new_client = 
+                    new_client =
                         client
                         |> Chat.update_messages(resp)?
                         |> Chat.add_user_message(retry_message, {})
                     generate_madlib_help!(theme, tries - 1, new_client)
+
                 Err(_) -> Err(MadLibParseError)
 
-        _ -> 
+        _ ->
             Err(HttpStatusError(resp.status))
 
 no_punctuation = |str|
