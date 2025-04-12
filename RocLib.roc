@@ -59,6 +59,6 @@ to_html = |roclib|
         )
         |> Str.join_with("")
     title = "<h1>${roclib.title}</h1>"
-    style = "<style>body { background-color: #1e1e2e; margin: 2rem auto; max-width: 800px; padding: 0 2rem; font-family: Calibri, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; } h1 { color: #cba6f7; } p { color: #cdd6f4; }</style>"
+    style = "<style>body { background-color: #1e1e2e; margin: 2rem auto; max-width: 1000px; padding: 0 2rem; font-family: Calibri, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 170%; } h1 { color: #cba6f7; font-size: 170%; } p { color: #cdd6f4; }</style>"
 
     "<html><head>${style}</head><body>${title}${paragraphs}</body></html>"
