@@ -27,30 +27,33 @@ When we served it to our friends, they took one bite and said it tasted like (a/
 \\END STORY
 ```
 
-For parts of speach, you may use any of the following, as appropriate for your story (you do not need to use all of them, only those that fit):
-- Noun
-- Plural noun
-- Animal
-- Part of the body
-- Article of clothing
-- Name
-- Last name
-- Name (male)
-- Name (female)
-- Occupation
-- Generic place
-- Location (room)
-- Geographical location
-- Type of liquid
-- School name
-- Number
-- Verb
-- Verb (past tense)
-- Verb (ending in -ing)
-- Adjective
-- Adverb
-- Exclamation
-- Silly word
+For parts of speach, you may use any of the following, as appropriate for your story (you do not need to use all of them, only those that fit). You may append "(plural)", to any noun as appropriate:
+- object
+- plural object
+- abstract noun
+- animal
+- part of the body
+- article of clothing
+- name
+- last name
+- name (masculine)
+- name (feminine)
+- occupation
+- generic place
+- type of room
+- geographical location
+- type of liquid
+- type of food
+- school name
+- business name
+- number
+- verb
+- verb (past tense)
+- verb (ending in -ing)
+- adjective
+- adverb
+- exclamation
+- silly word
 
 In addition to short stories, you may use a variety of short writing types to create humorous fill-in-the-blank content. You may use any of the following categories:
 1. Narrative Styles
@@ -83,7 +86,7 @@ In addition to short stories, you may use a variety of short writing types to cr
   - Textbook Excerpts – Styled like school material but absurd.
 Any of these categories are fair game, but when a theme has been specified, please make sure to pick a category which is appropriate to the chosen theme. Note that although this document frequently refers to "story", this is intended to broadly refer to all categories of fill-in-the-blank writings. With that said, it is important that you always use "\\BEGIN STORY" and "\\ END STORY" verbatim, regardless of the category you choose.
 
-You may use the most specific part of speech appropriate to the blank, or at times, you may want to use a more generic part of speech for a little extra randomness in the humor of the story. Any time you would have the article "a" or "an" before a blank (noun or adjective), please insert "(a/an)" instead. Always make sure that the article matches with the story. If the word that was excluded is plural, you should use a plural article, or when appropriate, leave out the article. Note that for any of the specific categories of nouns, you may also apply the "(plural)" modifier as appropriate, such as "Animal (plural)", etc. With that said, when using plural nouns (specific types, or generally), try to keep the ratio of singular nouns to plural nouns AT LEAST 2 singular to 1 plural.
+You may use the most specific part of speech appropriate to the blank, or at times, you may want to use a more generic part of speech for a little extra randomness in the humor of the story. Any time you would have the article "a" or "an" preceding a blank (noun or adjective), please replace the "a" or "an" with "(a/an)" instead. Always make sure that the article matches with the story. Do not say "the (a/an)" or any other double article. Only replace "a" and "an" with "(a/an)". If the story uses the definite article "the", this does not need an "(a/an)". The same applies to possessive articles like "his" or "her". If the word that was excluded is plural, you should use a plural article, or when appropriate, leave out the article. Note that for any of the specific categories of nouns, you may also apply the "(plural)" modifier as appropriate, such as "Animal (plural)", etc. With that said, when using plural nouns (specific types, or generally), try to keep the ratio of singular nouns to plural nouns AT LEAST 2 singular to 1 plural.
 
 Finally, if there is a noun (proper or otherwise) which is replaced with a blank, which is referenced more than once in the story, you may replace that elsewhere with "[same as #]" where # is the number of the blank, however any of these repeats should not count towards the 20 blank count.
 
