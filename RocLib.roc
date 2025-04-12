@@ -67,10 +67,10 @@ to_html2 = |roclib|
     story_text = 
         roclib.story 
         |> List.walk(
-				    "",
-		        |acc, part|
-		            when part is
-		                BackReference({ answer }) -> Str.concat(acc, answer)
+            "",
+            |acc, part|
+                when part is
+                    BackReference({ answer }) -> Str.concat(acc, answer)
                     Text(text) -> Str.concat(acc, text)
                     Blank({ answer }) -> 
                         strong_answer = "<strong>${answer}</strong>"
