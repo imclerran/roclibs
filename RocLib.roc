@@ -71,10 +71,10 @@ to_html2 = |roclib|
 		        |acc, part|
 		            when part is
 		                BackReference({ answer }) -> Str.concat(acc, answer)
-		                Text(text) -> Str.concat(acc, text)
-										Blank({ answer }) -> 
-												strong_answer = "<strong>${answer}</strong>"
-												Str.concat(acc, strong_answer)
+                    Text(text) -> Str.concat(acc, text)
+                    Blank({ answer }) -> 
+                        strong_answer = "<strong>${answer}</strong>"
+                        Str.concat(acc, strong_answer)
 		    )
     paragraphs =
         story_text
