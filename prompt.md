@@ -27,7 +27,7 @@ When we served it to our friends, they took one bite and said it tasted like (a/
 \\END STORY
 ```
 
-For parts of speach, you may use any of the following, as appropriate for your story (you do not need to use all of them, only those that fit). You may append "(plural)", to any noun as appropriate:
+For parts of speach, you may use any of the following, as appropriate for your story (you do not need to use all of them, only those that fit). You may append "(plural)", to any type of noun as appropriate:
 - object
 - plural object
 - abstract noun
