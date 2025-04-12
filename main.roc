@@ -4,6 +4,7 @@ app [main!] {
     ai: "https://github.com/imclerran/roc-ai/releases/download/v0.10.1/iIKfbjobbmHIC5lW5pIWKkdMqVHX4IEgpdOO7EReYUM.tar.br",
     dt: "https://github.com/imclerran/roc-isodate/releases/download/v0.7.4/bEDedspHQApTvZI2GJfgXpzUmYO_ATw5d6xE_w1qcME.tar.br",
     ansi: "https://github.com/lukewilliamboswell/roc-ansi/releases/download/0.8.0/RQlGWlkQEfxtkSYKl0nHNQaOFT0-Jh7NNFEX2IPXlec.tar.br",
+    rtils: "https://github.com/imclerran/rtils/releases/download/v0.1.7/xGdIJGyOChqLXjqx99Iqunxz3XyEpBp5zGOdb3OVUhs.tar.br",
 }
 
 import "./prompt.md" as prompt : Str
@@ -70,40 +71,10 @@ main_menu! = |{}|
     choice = Stdin.line!({})? |> Str.to_u64
     when choice is
         Ok(1) ->
-            "\nPlease enter a theme for your story (or leave blank for a suprprise): " 
-            |> color({ fg: Standard Cyan })
-            |> Stdout.line!?
-            theme = Stdin.line!({})? |> |s| if Str.is_empty(s) then "Surprise me!" else s |> Str.trim
-            "Give me a moment to write you a story..."
-            |> |s| if theme == "Surprise me!" then s else Str.with_prefix(s, "\n")
-            |> color({ fg: Standard Yellow })
-            |> Stdout.line!?
-            (roclib, template_path) = generate_madlib!(theme)?
-            "\nOkay, I've got it! Let's play..."
-            |> color({ fg: Standard Cyan })
-            |> Stdout.line!?
-            finished_madlib = get_answers!(roclib)?
-            print_story!(finished_madlib)?
-            save_dir = get_save_dir(template_path)
-            filename = Now.date_time!({}) |> DateTime.to_iso_str
-            save_story!(finished_madlib, save_dir, filename) ? |_| FileSaveError
-            html_path = Str.concat(save_dir, "/${filename}.html")
-            Cmd.exec!("open", [html_path])?
-            continue!({})
+            play_new_story!({})
             
         Ok(2) ->
-            madlib_choices = get_madlib_choices!({}) ? |_| GetMadLibChoicesError 
-            madlib_choice = my_madlibs_menu!(madlib_choices)?
-            template_path = madlib_choice.2
-            roclib = load_story!(template_path) ? |_| LoadStoryError
-            finished_madlib = get_answers!(roclib)?
-            print_story!(finished_madlib)?
-            save_dir = get_save_dir(template_path)
-            filename = Now.date_time!({}) |> DateTime.to_iso_str
-            save_story!(finished_madlib, save_dir, filename) ? |_| FileSaveError
-            html_path = Str.concat(save_dir, "/${filename}.html")
-            Cmd.exec!("open", [html_path])?
-            continue!({})
+            play_existing_story!({})
 
         Ok(3) ->
             "\nGoodbye!" |> color({ fg: Standard Magenta }) |> Stdout.line!?
@@ -113,12 +84,57 @@ main_menu! = |{}|
             "\nInvalid choice. Please try again.\n" |> color({ fg: Standard Yellow }) |> Stdout.line!?
             main_menu!({})
 
+play_new_story! = |{}|
+    "\nPlease enter a theme for your story (or leave blank for a surprise): " 
+    |> color({ fg: Standard Cyan })
+    |> Stdout.line!?
+    theme = Stdin.line!({})? |> |s| if Str.is_empty(s) then "Surprise me!" else s |> Str.trim
+    "Give me a moment to write you a story..."
+    |> |s| if theme == "Surprise me!" then s else Str.with_prefix(s, "\n")
+    |> color({ fg: Standard Yellow })
+    |> Stdout.line!?
+    (roclib, template_path) = generate_madlib!(theme)?
+    "\nOkay, I've got it! Let's play..."
+    |> color({ fg: Standard Cyan })
+    |> Stdout.line!?
+    play_roclib!(roclib, template_path)
+
+play_existing_story! = |{}|
+    madlib_choices = get_madlib_choices!({}) ? |_| GetMadLibChoicesError 
+    madlib_choice = my_madlibs_menu!(madlib_choices)?
+    template_path = madlib_choice.2
+    roclib = load_story!(template_path) ? |_| LoadStoryError
+    play_roclib!(roclib, template_path)
+
+play_roclib! = |roclib, template_path|
+    finished_madlib = get_answers!(roclib)?
+    are_you_ready!({})?
+    save_dir = get_save_dir(template_path)
+    filename = Now.date_time!({}) |> DateTime.to_iso_str
+    save_story!(finished_madlib, save_dir, filename) ? |_| FileSaveError
+    html_path = Str.concat(save_dir, "/${filename}.html")
+    open_story_html!(html_path)?
+    continue!({})
+
+open_story_html! = |file_path|
+    when Env.platform!({}) |> .os is
+        LINUX -> Cmd.exec!("xdg-open", [file_path])
+        MACOS -> Cmd.exec!("open", [file_path])
+        _ -> Err(UnsupportedPlatform)
+         
+are_you_ready! = |{}|
+    "\nARE YOU READY?!?!" 
+    |> color({ fg: Standard Red })
+    |> Stdout.line!?
+    (if Str.is_empty(Stdin.line!({})?) then "Opening your story..." else "\nOpening your story...") 
+    |> color({ fg: Standard Magenta }) 
+    |> Stdout.line!    
+
 continue! = |{}|
     "\nPress enter to return to the main menu..." 
     |> color({ fg: Standard Cyan })
     |> Stdout.line!?
     _ = Stdin.line!({})
-    Str.repeat("\n", 20) |> Stdout.line!?
     Ok(Continue)
 
 my_madlibs_menu! = |choices|
@@ -185,19 +201,6 @@ get_answer! = |part_of_speech, index, total|
     else
         Ok(answer)
 
-print_story! = |roclib|
-    "\n\nARE YOU READY?!?!" 
-    |> color({ fg: Standard Red })
-    |> Stdout.line!?
-    _ = Stdin.line!({})
-    Str.repeat("\n", 20) |> Stdout.line!?
-    "${roclib.title}\n\n" 
-    |> color({ fg: Standard Red })
-    |> Stdout.line!?
-    RocLib.story_to_str(roclib.story) 
-    |> color({ fg: Standard Magenta })
-    |> Stdout.line!
-
 save_story! = |roclib, save_dir, filename|
     html_name = Str.concat(filename, ".html")
     html_path = Str.concat(save_dir, "/${html_name}") |> Path.from_str
@@ -208,9 +211,10 @@ generate_madlib! = |theme|
     api_key = Env.var!("OPENROUTER_API_KEY") |> Result.with_default("")
     model = "openai/gpt-4o"
     api = OpenRouter
+    message_text = "${prompt}\n\nUSER SELECTED THEME:\n${theme}"
     client = 
         Client.new({api, api_key, model})
-        |> Chat.add_user_message(Str.concat(prompt, theme), {})
+        |> Chat.add_user_message(message_text, {})
     generate_madlib_help!(theme, 3, client)
 
 generate_madlib_help! = |theme, tries, client|
@@ -241,7 +245,6 @@ generate_madlib_help! = |theme, tries, client|
         _ -> 
             Err(HttpStatusError(resp.status))
 
-    
 no_punctuation = |str|
     is_alpha = |c| (c >= 'a' and c <= 'z') or (c >= 'A' and c <= 'Z') or (c == ' ')
     str
