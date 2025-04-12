@@ -76,7 +76,7 @@ to_html2 = |roclib|
 												strong_answer = "<strong>${answer}</strong>"
 												Str.concat(acc, strong_answer)
 		    )
-		paragraphs =
+    paragraphs =
         story_text
         |> Str.split_on("\n") 
         |> List.drop_if(|s| Str.is_empty(s))
