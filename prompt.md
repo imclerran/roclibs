@@ -34,14 +34,14 @@ For parts of speach, you may use any of the following, as appropriate for your s
 - animal
 - part of the body
 - article of clothing
-- name
+- first name (masculine)
+- first name (feminine)
 - last name
-- name (masculine)
-- name (feminine)
+- name
 - occupation
-- generic place
-- type of room
 - geographical location
+- type of room
+- generic place
 - type of liquid
 - type of food
 - school name
@@ -89,5 +89,3 @@ Any of these categories are fair game, but when a theme has been specified, plea
 You may use the most specific part of speech appropriate to the blank, or at times, you may want to use a more generic part of speech for a little extra randomness in the humor of the story. Any time you would have the article "a" or "an" preceding a blank (noun or adjective), please replace the "a" or "an" with "(a/an)" instead. Always make sure that the article matches with the story. Do not say "the (a/an)" or any other double article. Only replace "a" and "an" with "(a/an)". If the story uses the definite article "the", this does not need an "(a/an)". The same applies to possessive articles like "his" or "her". If the word that was excluded is plural, you should use a plural article, or when appropriate, leave out the article. Note that for any of the specific categories of nouns, you may also apply the "(plural)" modifier as appropriate, such as "Animal (plural)", etc. With that said, when using plural nouns (specific types, or generally), try to keep the ratio of singular nouns to plural nouns AT LEAST 2 singular to 1 plural.
 
 Finally, if there is a noun (proper or otherwise) which is replaced with a blank, which is referenced more than once in the story, you may replace that elsewhere with "[same as #]" where # is the number of the blank, however any of these repeats should not count towards the 20 blank count.
-
-USER SELECTED THEME: 
