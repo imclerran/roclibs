@@ -7,20 +7,19 @@ app [main!] {
     rtils: "https://github.com/imclerran/rtils/releases/download/v0.1.7/xGdIJGyOChqLXjqx99Iqunxz3XyEpBp5zGOdb3OVUhs.tar.br",
 }
 
-import "./prompt.md" as prompt : Str
+import "./story_prompt.md" as story_prompt : Str
 
 import RocLib exposing [RocLib]
 
-import ai.Client
 import ai.Chat
 import ansi.ANSI exposing [color]
 import cli.Cmd
+import cli.Env
+import cli.Http
+import cli.File
 import cli.Stdout
 import cli.Stdin
-import cli.File
 import cli.Path
-import cli.Http
-import cli.Env
 import cli.Utc
 import dt.DateTime
 import dt.Now {
@@ -84,19 +83,47 @@ main_menu! = |{}|
             main_menu!({})
 
 play_new_story! = |{}|
-    "\nPlease enter a theme for your story (or leave blank for a surprise): "
-    |> color({ fg: Standard Cyan })
-    |> Stdout.line!?
-    theme = Stdin.line!({})? |> |s| if Str.is_empty(s) then "Surprise me!" else s |> Str.trim
+    Stdout.line!("")?
+    category = category_menu!({})?
+    theme = theme_prompt!({})?
     "Give me a moment to write you a story..."
     |> |s| if theme == "Surprise me!" then s else Str.with_prefix(s, "\n")
     |> color({ fg: Standard Yellow })
     |> Stdout.line!?
-    (roclib, template_path) = generate_madlib!(theme)?
+    (roclib, template_path) = generate_madlib!(category, theme)?
     "\nOkay, I've got it! Let's play..."
     |> color({ fg: Standard Cyan })
     |> Stdout.line!?
     play_roclib!(roclib, template_path)
+
+category_menu! = |{}|
+    categories = ["Narrative", "Informative or expository", "Persuasive or opinion", "Functional or practical", "Educational", "Suprise me!"]
+    _ = List.walk_try!(
+        categories,
+        1,
+        |index, category| 
+            "${index |> Num.to_str}) ${category}"
+            |> color({ fg: Standard Magenta }) 
+            |> Stdout.line!?
+            Ok(index + 1),
+    )
+    "\nSelect a category by number: " |> color({ fg: Standard Cyan }) |> Stdout.line!?
+    choice = Stdin.line!({})? |> Str.to_u64
+    when choice is
+        Ok(n) if n >= 1 and n <= List.len(categories) ->
+            categories |> List.get(n - 1)
+        _ ->
+            "\nInvalid choice. Please try again.\n" |> color({ fg: Standard Yellow }) |> Stdout.line!?
+            category_menu!({})
+
+theme_prompt! = |{}|
+    "\nPlease enter a theme for your story (or leave blank for a surprise): "
+    |> color({ fg: Standard Cyan })
+    |> Stdout.line!?
+    Stdin.line!({})? 
+    |> |s| if Str.is_empty(s) then "Surprise me!" else s 
+    |> Str.trim 
+    |> Ok
 
 play_existing_story! = |{}|
     madlib_choices = get_madlib_choices!({}) ? |_| GetMadLibChoicesError
@@ -208,23 +235,26 @@ save_story! = |roclib, save_dir, filename|
     html = RocLib.to_html(roclib)
     Path.write_utf8!(html, html_path)
 
-generate_madlib! = |theme|
+generate_madlib! = |category, theme|
     api_key = Env.var!("OPENROUTER_API_KEY") ? |_| EnvVarNotFound("OPENROUTER_API_KEY")
     model = "openai/gpt-4o"
     api = OpenRouter
     message_text = 
         """
-        ${prompt}
+        ${story_prompt}
+
+        USER SELECTED CATEGORY:
+        ${category}
         
         USER SELECTED THEME:
         ${theme}
         """
     client =
-        Client.new({ api, api_key, model })
+        Chat.new_client({ api, api_key, model })
         |> Chat.add_user_message(message_text, {})
-    generate_madlib_help!(theme, 3, client)
+    generate_madlib_help!(client, 3)
 
-generate_madlib_help! = |theme, tries, client|
+generate_madlib_help! = |client, tries|
     req = Chat.build_http_request(client, {})
     resp = Http.send!(req)?
     when resp.status is
@@ -242,12 +272,12 @@ generate_madlib_help! = |theme, tries, client|
                     Ok((roclib, template_path))
 
                 Err(_) if tries > 0 ->
-                    retry_message = "There was a problem parsing your story, please try again and pay careful attention"
+                    retry_message = "There was a problem parsing your story; please try again and pay careful attention to the syntax instructions."
                     new_client =
                         client
                         |> Chat.update_messages(resp)?
                         |> Chat.add_user_message(retry_message, {})
-                    generate_madlib_help!(theme, tries - 1, new_client)
+                    generate_madlib_help!(new_client, tries - 1)
 
                 Err(_) -> Err(MadLibParseError)
 
