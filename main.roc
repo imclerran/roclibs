@@ -209,10 +209,16 @@ save_story! = |roclib, save_dir, filename|
     Path.write_utf8!(html, html_path)
 
 generate_madlib! = |theme|
-    api_key = Env.var!("OPENROUTER_API_KEY") |> Result.with_default("")
+    api_key = Env.var!("OPENROUTER_API_KEY") ? |_| EnvVarNotFound("OPENROUTER_API_KEY")
     model = "openai/gpt-4o"
     api = OpenRouter
-    message_text = "${prompt}\n\nUSER SELECTED THEME:\n${theme}"
+    message_text = 
+        """
+        ${prompt}
+        
+        USER SELECTED THEME:
+        ${theme}
+        """
     client =
         Client.new({ api, api_key, model })
         |> Chat.add_user_message(message_text, {})
