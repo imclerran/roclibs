@@ -7,7 +7,8 @@ app [main!] {
     rtils: "https://github.com/imclerran/rtils/releases/download/v0.1.7/xGdIJGyOChqLXjqx99Iqunxz3XyEpBp5zGOdb3OVUhs.tar.br",
 }
 
-import "./story_prompt.md" as story_prompt : Str
+import "./prompts/story_prompt.md" as story_prompt : Str
+import "./prompts/proofread_prompt.md" as proofread_prompt : Str
 
 import RocLib exposing [RocLib]
 
@@ -15,11 +16,12 @@ import ai.Chat
 import ansi.ANSI exposing [color]
 import cli.Cmd
 import cli.Env
-import cli.Http
+import cli.Dir
 import cli.File
-import cli.Stdout
-import cli.Stdin
+import cli.Http
 import cli.Path
+import cli.Stdin
+import cli.Stdout
 import cli.Utc
 import dt.DateTime
 import dt.Now {
@@ -34,15 +36,13 @@ main_loop! = |{}|
     when main_menu!({}) is
         Ok(Continue) -> main_loop!({})
         Ok(Exit) -> Ok({})
-        Err(e) ->
-            Err(Exit(1, Inspect.to_str(e)))
-
-get_save_dir = |template_path|
-    template_path |> Path.display |> Str.split_on("/") |> List.drop_last(1) |> Str.join_with("/")
+        Err(e) -> Err(Exit(1, Inspect.to_str(e)))
 
 get_madlib_choices! = |{}|
-    cwd = Env.cwd!({})?
-    Path.list_dir!(cwd)?
+    Env.cwd!({})?
+    |> Path.display
+    |> Str.concat("/stories/")
+    |> Dir.list!?
     |> List.walk_try!([], |acc, path| if Path.is_dir!(path)? then Ok(List.append(acc, path)) else Ok(acc))?
     |> List.walk_try!(
         [],
@@ -68,16 +68,9 @@ main_menu! = |{}|
     "\nSelect an option by number: " |> color({ fg: Standard Cyan }) |> Stdout.line!?
     choice = Stdin.line!({})? |> Str.to_u64
     when choice is
-        Ok(1) ->
-            play_new_story!({})
-
-        Ok(2) ->
-            play_existing_story!({})
-
-        Ok(3) ->
-            "\nGoodbye!" |> color({ fg: Standard Magenta }) |> Stdout.line!?
-            Ok(Exit)
-
+        Ok(1) -> play_new_story!({})
+        Ok(2) -> play_existing_story!({})
+        Ok(3) -> Ok(Exit)
         _ ->
             "\nInvalid choice. Please try again.\n" |> color({ fg: Standard Yellow }) |> Stdout.line!?
             main_menu!({})
@@ -90,28 +83,27 @@ play_new_story! = |{}|
     |> |s| if theme == "Surprise me!" then s else Str.with_prefix(s, "\n")
     |> color({ fg: Standard Yellow })
     |> Stdout.line!?
-    (roclib, template_path) = generate_madlib!(category, theme)?
+    (roclib, template_path) = generate_roclib!(category, theme)?
     "\nOkay, I've got it! Let's play..."
     |> color({ fg: Standard Cyan })
     |> Stdout.line!?
     play_roclib!(roclib, template_path)
 
 category_menu! = |{}|
-    categories = ["Narrative", "Informative or expository", "Persuasive or opinion", "Functional or practical", "Educational", "Suprise me!"]
+    categories = ["Narrative", "Informative or expository", "Persuasive or opinion", "Functional or practical", "Creative or artistic", "Educational", "Suprise me!"]
     _ = List.walk_try!(
         categories,
         1,
-        |index, category| 
+        |index, category|
             "${index |> Num.to_str}) ${category}"
-            |> color({ fg: Standard Magenta }) 
+            |> color({ fg: Standard Magenta })
             |> Stdout.line!?
             Ok(index + 1),
     )
     "\nSelect a category by number: " |> color({ fg: Standard Cyan }) |> Stdout.line!?
     choice = Stdin.line!({})? |> Str.to_u64
     when choice is
-        Ok(n) if n >= 1 and n <= List.len(categories) ->
-            categories |> List.get(n - 1)
+        Ok(n) if n >= 1 and n <= List.len(categories) -> categories |> List.get(n - 1)
         _ ->
             "\nInvalid choice. Please try again.\n" |> color({ fg: Standard Yellow }) |> Stdout.line!?
             category_menu!({})
@@ -120,9 +112,9 @@ theme_prompt! = |{}|
     "\nPlease enter a theme for your story (or leave blank for a surprise): "
     |> color({ fg: Standard Cyan })
     |> Stdout.line!?
-    Stdin.line!({})? 
-    |> |s| if Str.is_empty(s) then "Surprise me!" else s 
-    |> Str.trim 
+    Stdin.line!({})?
+    |> |s| if Str.is_empty(s) then "Surprise me!" else s
+    |> Str.trim
     |> Ok
 
 play_existing_story! = |{}|
@@ -141,6 +133,9 @@ play_roclib! = |roclib, template_path|
     html_path = Str.concat(save_dir, "/${filename}.html")
     open_story_html!(html_path)?
     continue!({})
+
+get_save_dir = |template_path|
+    template_path |> Path.display |> Str.split_on("/") |> List.drop_last(1) |> Str.join_with("/")
 
 open_story_html! = |file_path|
     when Env.platform!({}) |> .os is
@@ -235,56 +230,88 @@ save_story! = |roclib, save_dir, filename|
     html = RocLib.to_html(roclib)
     Path.write_utf8!(html, html_path)
 
-generate_madlib! = |category, theme|
+generate_roclib! = |category, theme|
     api_key = Env.var!("OPENROUTER_API_KEY") ? |_| EnvVarNotFound("OPENROUTER_API_KEY")
     model = "openai/gpt-4o"
     api = OpenRouter
-    message_text = 
+    message_text =
         """
         ${story_prompt}
 
         USER SELECTED CATEGORY:
         ${category}
-        
+
         USER SELECTED THEME:
         ${theme}
         """
     client =
         Chat.new_client({ api, api_key, model })
         |> Chat.add_user_message(message_text, {})
-    generate_madlib_help!(client, 3)
+    req = Chat.build_http_request(client, {})
+    resp = Http.send!(req)?
+    when resp.status is
+        200 ->
+            resp.body
+            |> Chat.decode_top_message_choice?
+            |> .content
+            |> strip_codeblock
+            |> proofread_story!
 
-generate_madlib_help! = |client, tries|
+        _ ->
+            Err(HttpStatusError(resp.status))
+
+proofread_story! = |story|
+    api_key = Env.var!("OPENROUTER_API_KEY") ? |_| EnvVarNotFound("OPENROUTER_API_KEY")
+    model = "anthropic/claude-3.5-sonnet"
+    api = OpenRouter
+    message_text =
+        """
+        ${proofread_prompt}
+
+        TEXT TO EDIT:
+        ${story}
+        """
+    Chat.new_client({ api, api_key, model })
+    |> Chat.add_user_message(message_text, {})
+    |> proofread_story_help!(3)
+
+proofread_story_help! = |client, tries|
     req = Chat.build_http_request(client, {})
     resp = Http.send!(req)?
     when resp.status is
         200 ->
             message = Chat.decode_top_message_choice(resp.body)?
-            template = message.content |> Str.drop_prefix("```md") |> Str.drop_prefix("```") |> Str.drop_suffix("```") |> Str.trim
+            template = strip_codeblock(message.content)
             when RocLib.parse_template(template) is
                 Ok(roclib) ->
-                    dirname = roclib.title |> no_punctuation
+                    dirname = roclib.title |> strip_punctuation
                     cwd = Env.cwd!({})? |> Path.display
-                    dirpath = Str.concat(cwd, "/${dirname}")
+                    dirpath = Str.concat(cwd, "/stories/${dirname}")
                     Path.create_dir!(Path.from_str(dirpath))?
                     template_path = Str.concat(dirpath, "/template.md") |> Path.from_str
                     Path.write_utf8!(template, template_path)?
                     Ok((roclib, template_path))
 
                 Err(_) if tries > 0 ->
-                    retry_message = "There was a problem parsing your story; please try again and pay careful attention to the syntax instructions."
-                    new_client =
-                        client
-                        |> Chat.update_messages(resp)?
-                        |> Chat.add_user_message(retry_message, {})
-                    generate_madlib_help!(new_client, tries - 1)
+                    retry_message = "There was a problem parsing the story; please try again and pay careful attention to the syntax instructions."
+                    client
+                    |> Chat.update_messages(resp)?
+                    |> Chat.add_user_message(retry_message, {})
+                    |> proofread_story_help!(tries - 1)
 
                 Err(_) -> Err(MadLibParseError)
 
         _ ->
             Err(HttpStatusError(resp.status))
 
-no_punctuation = |str|
+strip_codeblock = |str|
+    str
+    |> Str.drop_prefix("```md")
+    |> Str.drop_prefix("```")
+    |> Str.drop_suffix("```")
+    |> Str.trim
+
+strip_punctuation = |str|
     is_alpha = |c| (c >= 'a' and c <= 'z') or (c >= 'A' and c <= 'Z') or (c == ' ')
     str
     |> Str.to_utf8

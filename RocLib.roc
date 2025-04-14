@@ -66,7 +66,9 @@ part_to_html = |part|
     when part is
         Blank({ answer }) ->
             "<strong>${answer}</strong>"
+
         BackReference({ answer }) ->
             "<strong>${answer}</strong>"
+
         Text(text) -> text
 

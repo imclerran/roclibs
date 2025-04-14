@@ -1,0 +1,13 @@
+.DS_Store
+main
+roclibs
+*.md
+*.html
+!story_prompt.md
+!proofread_prompt.md
+!README.md
+!stories/The Unbelievable Unicorn Uprising/template.md
+!stories/The Daily Catastrophe/template.md
+!stories/The Great Detective Sandwich/template.md
+!stories/The Intergalactic Zoo Escape/template.md
+!stories/The Ultimate Cover Letter for Employment/template.md

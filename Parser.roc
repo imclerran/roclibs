@@ -53,7 +53,7 @@ parse = |str|
     parser(str) |> P.finalize_lazy
 
 expect
-    import "./The Mysterious Space Station/template.md" as text : Str
+    import "./stories/The Mysterious Space Station/template.md" as text : Str
     expected =
         Ok(
             {
